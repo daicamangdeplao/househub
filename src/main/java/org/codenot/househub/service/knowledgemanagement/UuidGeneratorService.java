@@ -1,18 +1,14 @@
-package org.codenot.househub.service;
+package org.codenot.househub.service.knowledgemanagement;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 @Slf4j
-public class UuidGeneratorService implements IdGeneratorService{
-
-    @Value("${app.importer.knowledgeBase.directory}")
-    private String knowledgeBaseDirectory;
+public class UuidGeneratorService implements IdGeneratorService {
 
     @Override
     public UUID generateId() {
