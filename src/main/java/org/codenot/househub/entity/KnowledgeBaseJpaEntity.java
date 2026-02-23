@@ -1,14 +1,13 @@
 package org.codenot.househub.entity;
 
+import com.pgvector.PGvector;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.codenot.househub.service.knowledgemanagement.Topic;
-import org.hibernate.annotations.Array;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.Type;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -41,16 +40,12 @@ public class KnowledgeBaseJpaEntity {
      * <p>
      * refer: https://github.com/pgvector/pgvector-java
      */
-    @Column(nullable = false, columnDefinition = "vector(1536)")
-    @JdbcTypeCode(SqlTypes.VECTOR)
-    @Array(length = 1536)
-    private float[] embedding;
+    @Column(name = "embedding", columnDefinition = "vector(768)", nullable = false)
+    @Type(PGvectorType.class)
+    private PGvector embedding;
 
     @CreationTimestamp
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
-    public KnowledgeBaseJpaEntity(UUID uuid, Topic topic, int i, float[] floats) {
-
-    }
 }
