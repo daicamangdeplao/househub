@@ -1,4 +1,5 @@
 create extension if not exists vector;
+create extension if not exists pgml;
 
 create table if not exists knowledge_base (
     id bigint generated always as identity primary key,
