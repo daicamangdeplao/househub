@@ -12,12 +12,12 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
 @Slf4j
-public class Importer {
+public class KnowledgeImporter {
 
     private final AppConfig.ServiceProperties serviceProperties;
     private final IdGeneratorService idGeneratorService;
 
-    public Importer(AppConfig.ServiceProperties serviceProperties, IdGeneratorService idGeneratorService) {
+    public KnowledgeImporter(AppConfig.ServiceProperties serviceProperties, IdGeneratorService idGeneratorService) {
         this.serviceProperties = serviceProperties;
         this.idGeneratorService = idGeneratorService;
     }

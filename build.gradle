@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.2'
+    id 'org.springframework.boot' version '3.5.10'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -20,25 +20,44 @@ configurations {
     }
 }
 
+// This configuration will be dependent on company repository
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven {
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+    }
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0")
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//    implementation 'org.springframework.boot:spring-ai-starter-model-anthropic'
+    // This is for UUID v7 generation
     implementation 'com.github.f4b6a3:uuid-creator:6.1.1'
     implementation 'dev.langchain4j:langchain4j-core:1.11.0'
+
+    implementation 'org.springframework.ai:spring-ai-starter-model-postgresml-embedding'
+
     // Anthropic (Claude) integration
     implementation 'dev.langchain4j:langchain4j-anthropic:1.11.0'
     implementation 'dev.langchain4j:langchain4j-anthropic-spring-boot-starter:1.6.0-beta12'
+    // Source: https://mvnrepository.com/artifact/com.pgvector/pgvector
+    // JPA only supports a small set of basic attribute types. A Java array like float[] is not a valid @Basic type, so the provider (Hibernate) fails during metadata validation with:
+    // 'Basic' attribute type should not be 'float[]'
+    // pgvector is a custom PostgreSQL type, and JPA does not know how to map it automatically.
+    implementation 'com.pgvector:pgvector:0.1.6'
 
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly 'org.postgresql:postgresql'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
