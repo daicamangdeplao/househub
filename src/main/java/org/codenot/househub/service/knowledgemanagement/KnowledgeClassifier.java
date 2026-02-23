@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class TopicClassifier {
+public class KnowledgeClassifier {
 
     private static final String PROMPT = """
                 Use the following context to answer the question.
@@ -28,7 +28,7 @@ public class TopicClassifier {
     private final ChatModel chatModel;
     private final AppConfig.ServiceProperties serviceProperties;
 
-    public TopicClassifier(ChatModel chatModel, AppConfig.ServiceProperties serviceProperties) {
+    public KnowledgeClassifier(ChatModel chatModel, AppConfig.ServiceProperties serviceProperties) {
         this.chatModel = chatModel;
         this.serviceProperties = serviceProperties;
     }
