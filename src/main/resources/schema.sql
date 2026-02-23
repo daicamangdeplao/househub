@@ -6,7 +6,7 @@ create table if not exists knowledge_base (
     uuid uuid not null,
     topic varchar(128) not null,
     published_year int not null,
-    embedding vector(1536) not null,
+    embedding vector(768) not null,
     created_at timestamptz default now(),
     unique (uuid)
 );
