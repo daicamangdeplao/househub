@@ -1,5 +1,6 @@
 package org.codenot.househub.service.knowledgemanagement;
 
+import com.pgvector.PGvector;
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.repository.KnowledgeBaseRepository;
@@ -32,7 +33,8 @@ public class KnowledgePersister {
         entity.setUuid(idGeneratorService.generateId());
         entity.setPublishedYear(LocalDateTime.now().getYear());
         // TODO this step takes too long. Concurrently persist knowledge base to DB
-        entity.setEmbedding(embeddingModel.embed(knowledge));
+        float[] embed = embeddingModel.embed(knowledge);
+        entity.setEmbedding(new PGvector(embed));
 
         repository.save(entity);
         return false;
