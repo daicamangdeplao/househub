@@ -2,9 +2,7 @@ package org.codenot.househub.entity;
 
 import com.pgvector.PGvector;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.codenot.househub.service.knowledgemanagement.Topic;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
@@ -16,6 +14,8 @@ import java.util.UUID;
 @Table(name = "knowledge_base")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class KnowledgeBaseJpaEntity {
 
