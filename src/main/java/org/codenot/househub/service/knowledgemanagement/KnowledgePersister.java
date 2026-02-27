@@ -5,9 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.repository.KnowledgeBaseRepository;
 import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -25,18 +28,37 @@ public class KnowledgePersister {
         this.embeddingModel = embeddingModel;
     }
 
-    public boolean persistKnowledge(String knowledge) {
-//        Topic topic = knowledgeClassifier.classifyTopic();
-
+    public void persistKnowledge(String knowledge) {
+        UUID uuid = idGeneratorService.generateId();
+        log.info("Embedding text: [{}]", knowledge);
         KnowledgeBaseJpaEntity entity = new KnowledgeBaseJpaEntity();
         entity.setTopic(Topic.JAVA); // TODO Only for test
-        entity.setUuid(idGeneratorService.generateId());
+        entity.setUuid(uuid);
         entity.setPublishedYear(LocalDateTime.now().getYear());
-        // TODO this step takes too long. Concurrently persist knowledge base to DB
+        // The embedding model is CPU-bound
         float[] embed = embeddingModel.embed(knowledge);
         entity.setEmbedding(new PGvector(embed));
-
         repository.save(entity);
-        return false;
+        log.info("Persist knowledge with uuid [{}] successfully", uuid);
+    }
+
+    @Async("embeddingExecutor")
+    public CompletableFuture<Void> persistKnowledgeAsync(String text) {
+        return CompletableFuture.completedFuture(embedTextAsVector(text))
+                .thenApply((embedding) -> KnowledgeBaseJpaEntity.builder()
+                        .topic(Topic.JAVA) // TODO Only for test
+                        .uuid(idGeneratorService.generateId())
+                        .publishedYear(LocalDateTime.now().getYear())
+                        .embedding(embedding)
+                        .build())
+                .thenAccept(e -> {
+                    repository.save(e);
+                    log.info("Persist knowledge with uuid [{}] successfully", e.getUuid());
+                });
+    }
+
+    private PGvector embedTextAsVector(String text) {
+        log.info("Embedding text: [{}]", text);
+        return new PGvector(embeddingModel.embed(text));
     }
 }
