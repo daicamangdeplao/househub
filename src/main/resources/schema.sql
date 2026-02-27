@@ -1,7 +1,9 @@
 create extension if not exists vector;
 create extension if not exists pgml;
 
-create table if not exists knowledge_base (
+truncate table knowledge_base;
+
+       create table if not exists knowledge_base (
     id bigint generated always as identity primary key,
     uuid uuid not null,
     topic varchar(128) not null,
