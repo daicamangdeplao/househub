@@ -4,6 +4,7 @@ import com.pgvector.PGvector;
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.repository.KnowledgeBaseRepository;
+import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,20 +17,20 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class KnowledgePersister {
 
-    private final KnowledgeClassifier knowledgeClassifier;
-    private final IdGeneratorService idGeneratorService;
+    private final FileMover.KnowledgeClassifier knowledgeClassifier;
+    private final IdGenerator idGenerator;
     private final KnowledgeBaseRepository repository;
     private final EmbeddingModel embeddingModel;
 
-    public KnowledgePersister(KnowledgeClassifier knowledgeClassifier, IdGeneratorService idGeneratorService, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel) {
+    public KnowledgePersister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel) {
         this.knowledgeClassifier = knowledgeClassifier;
-        this.idGeneratorService = idGeneratorService;
+        this.idGenerator = idGenerator;
         this.repository = repository;
         this.embeddingModel = embeddingModel;
     }
 
     public void persistKnowledge(String knowledge) {
-        UUID uuid = idGeneratorService.generateId();
+        UUID uuid = idGenerator.generateId();
         log.info("Embedding text: [{}]", knowledge);
         KnowledgeBaseJpaEntity entity = new KnowledgeBaseJpaEntity();
         entity.setTopic(Topic.JAVA); // TODO Only for test
@@ -47,7 +48,7 @@ public class KnowledgePersister {
         return CompletableFuture.completedFuture(embedTextAsVector(text))
                 .thenApply((embedding) -> KnowledgeBaseJpaEntity.builder()
                         .topic(Topic.JAVA) // TODO Only for test
-                        .uuid(idGeneratorService.generateId())
+                        .uuid(idGenerator.generateId())
                         .publishedYear(LocalDateTime.now().getYear())
                         .embedding(embedding)
                         .build())

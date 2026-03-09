@@ -1,8 +1,7 @@
 package org.codenot.househub;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.service.knowledgemanagement.KnowledgeClassifier;
-import org.codenot.househub.service.knowledgemanagement.KnowledgeImporter;
+import org.codenot.househub.service.knowledgemanagement.FileMover;
 import org.codenot.househub.service.knowledgemanagement.KnowledgePersister;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -11,10 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Stream;
 
 @SpringBootApplication
@@ -30,12 +25,12 @@ public class Main implements CommandLineRunner {
     @Value("${TEXT_4}")
     private String TEXT_4;
 
-    private final KnowledgeImporter knowledgeImporter;
-    private final KnowledgeClassifier knowledgeClassifier;
+    private final FileMover fileMover;
+    private final FileMover.KnowledgeClassifier knowledgeClassifier;
     private final KnowledgePersister knowledgePersister;
 
-    public Main(KnowledgeImporter knowledgeImporter, KnowledgeClassifier knowledgeClassifier, KnowledgePersister knowledgePersister) {
-        this.knowledgeImporter = knowledgeImporter;
+    public Main(FileMover fileMover, FileMover.KnowledgeClassifier knowledgeClassifier, KnowledgePersister knowledgePersister) {
+        this.fileMover = fileMover;
         this.knowledgeClassifier = knowledgeClassifier;
         this.knowledgePersister = knowledgePersister;
     }
