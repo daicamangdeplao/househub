@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+@Deprecated
 public class PGvectorTypeOld implements UserType<PGvector> {
 
     @Override
