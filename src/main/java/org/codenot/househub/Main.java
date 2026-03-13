@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.service.knowledgemanagement.FileMover;
 import org.codenot.househub.service.knowledgemanagement.KnowledgePersister;
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileParser;
+import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -72,6 +73,8 @@ public class Main implements CommandLineRunner {
 
         // Test parse file
         fileParser.parseFile(Path.of("C:\\workspace\\knowledge-base\\source\\test.pdf"));
+        fileMover.archiveProcessedFiles(FileProcessorConstant.PROCESSING_FILE_EXTENSION);
+        fileMover.archiveProcessedFiles(FileProcessorConstant.PDF_FILE_EXTENSION);
 
         System.out.println();
     }

@@ -5,6 +5,7 @@ import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.config.AppConfig;
+import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,38 @@ public class FileMover {
         cleanUpSourceDir();
 
         log.info("Knowledge base imported successfully");
+    }
+
+    public void archiveProcessedFiles(FileProcessorConstant param) {
+        try (var paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
+            paths.forEach(source -> {
+                // skip directories and symbolic links, only process regular files
+                if (!Files.isRegularFile(source)) {
+                    return;
+                }
+
+                Path fileName = source.getFileName();
+                if (!fileName.endsWith(param.getValue())) {
+                    return;
+                }
+
+                Path targetDir = switch (param) {
+                    case PROCESSING_FILE_EXTENSION -> Path.of(serviceProperties.archiveKnowledgebaseDirectory());
+                    case FILE_EXTENSION_SEPARATOR -> Path.of(serviceProperties.pdfArchiveKnowledgebaseDirectory());
+                    default -> throw new IllegalArgumentException("Invalid FileProcessorConstant: " + param);
+                };
+                Path targetFile = targetDir.resolve(fileName);
+
+                try {
+                    Files.copy(source, targetFile, REPLACE_EXISTING);
+                    log.info("Archived file [{}] to [{}]", source, targetFile);
+                } catch (IOException e) {
+                    log.error("Failed to archive file [{}] to [{}]", source, targetFile);
+                }
+            });
+        } catch (IOException e) {
+            log.error("Failed to archive files", e);
+        }
     }
 
     private void copyKnowledgeBase() throws IOException {
