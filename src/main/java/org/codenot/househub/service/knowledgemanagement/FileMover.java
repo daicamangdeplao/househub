@@ -41,7 +41,7 @@ public class FileMover {
      * @throws IOException      if an I/O error occurs while walking the source directory
      * @throws RuntimeException if copying an individual file fails
      */
-    public void importKnowledgeBase() throws IOException {
+    public void importKnowledgeBase() {
         log.info("Importing knowledge base from [{}] to [{}]", serviceProperties.sourceKnowledgebaseDirectory(), serviceProperties.targetKnowledgebaseDirectory());
 
         copyKnowledgeBase();
@@ -82,7 +82,7 @@ public class FileMover {
         }
     }
 
-    private void copyKnowledgeBase() throws IOException {
+    private void copyKnowledgeBase() {
         try (var paths = Files.walk(Path.of(serviceProperties.sourceKnowledgebaseDirectory()))) {
             paths.forEach(source -> {
                 // skip directories and symbolic links, only process regular files
@@ -100,10 +100,12 @@ public class FileMover {
                     throw new RuntimeException(e);
                 }
             });
+        } catch (IOException e) {
+            log.error("Failed to move files to target directory [{}]", serviceProperties.targetKnowledgebaseDirectory(), e);
         }
     }
 
-    private void cleanUpSourceDir() throws IOException {
+    private void cleanUpSourceDir() {
         try (var paths = Files.walk(Path.of(serviceProperties.sourceKnowledgebaseDirectory()))) {
             paths.forEach(source -> {
                 if (!Files.isRegularFile(source)) {
@@ -117,6 +119,8 @@ public class FileMover {
                     throw new RuntimeException(e);
                 }
             });
+        } catch (IOException e) {
+            log.error("Failed to delete files from source directory [{}]", serviceProperties.sourceKnowledgebaseDirectory(), e);
         }
     }
 

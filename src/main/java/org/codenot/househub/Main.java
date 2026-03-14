@@ -72,9 +72,12 @@ public class Main implements CommandLineRunner {
 //        log.info("Total time: [{}] seconds", duration.getSeconds());
 
         // Test parse file
-        fileParser.parseFile(Path.of("C:\\workspace\\knowledge-base\\source\\test.pdf"));
-        fileMover.archiveProcessedFiles(FileProcessorConstant.PROCESSING_FILE_EXTENSION);
-        fileMover.archiveProcessedFiles(FileProcessorConstant.PDF_FILE_EXTENSION);
+//        fileParser.parseFile(Path.of("C:\\workspace\\knowledge-base\\source\\test.pdf"));
+//        fileMover.archiveProcessedFiles(FileProcessorConstant.PROCESSING_FILE_EXTENSION);
+//        fileMover.archiveProcessedFiles(FileProcessorConstant.PDF_FILE_EXTENSION);
+
+        // Test complete process
+        fileMover.importKnowledgeBase();
 
         System.out.println();
     }
