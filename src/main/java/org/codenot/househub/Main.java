@@ -2,19 +2,13 @@ package org.codenot.househub;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.service.knowledgemanagement.FileMover;
-import org.codenot.househub.service.knowledgemanagement.KnowledgePersister;
+import org.codenot.househub.service.knowledgemanagement.Persister;
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileParser;
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.stream.Stream;
 
 @SpringBootApplication
 @Slf4j
@@ -31,13 +25,13 @@ public class Main implements CommandLineRunner {
 
     private final FileMover fileMover;
     private final FileMover.KnowledgeClassifier knowledgeClassifier;
-    private final KnowledgePersister knowledgePersister;
+    private final Persister persister;
     private final FileParser fileParser;
 
-    public Main(FileMover fileMover, FileMover.KnowledgeClassifier knowledgeClassifier, KnowledgePersister knowledgePersister, FileParser fileParser) {
+    public Main(FileMover fileMover, FileMover.KnowledgeClassifier knowledgeClassifier, Persister persister, FileParser fileParser) {
         this.fileMover = fileMover;
         this.knowledgeClassifier = knowledgeClassifier;
-        this.knowledgePersister = knowledgePersister;
+        this.persister = persister;
         this.fileParser = fileParser;
     }
 
@@ -78,7 +72,7 @@ public class Main implements CommandLineRunner {
 
         // Test complete process
         fileMover.importKnowledgeBase();
-        knowledgePersister.persistKnowledge();
+        persister.persistKnowledge();
         fileMover.archiveProcessedFiles(FileProcessorConstant.PROCESSING_FILE_EXTENSION);
         fileMover.archiveProcessedFiles(FileProcessorConstant.PDF_FILE_EXTENSION);
 

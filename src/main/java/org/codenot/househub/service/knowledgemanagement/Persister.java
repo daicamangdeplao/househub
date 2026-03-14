@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileParser;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
 
 @Service
 @Slf4j
-public class KnowledgePersister {
+public class Persister {
 
     private final FileMover.KnowledgeClassifier knowledgeClassifier;
     private final IdGenerator idGenerator;
@@ -32,7 +31,7 @@ public class KnowledgePersister {
     private final AppConfig.ServiceProperties serviceProperties;
     private final FileParser fileParser;
 
-    public KnowledgePersister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AppConfig.ServiceProperties serviceProperties, FileParser fileParser) {
+    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AppConfig.ServiceProperties serviceProperties, FileParser fileParser) {
         this.knowledgeClassifier = knowledgeClassifier;
         this.idGenerator = idGenerator;
         this.repository = repository;
