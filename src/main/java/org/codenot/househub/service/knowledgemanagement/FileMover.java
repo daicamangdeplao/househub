@@ -4,6 +4,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.codenot.househub.config.AppConfig;
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
@@ -59,13 +60,13 @@ public class FileMover {
                 }
 
                 Path fileName = source.getFileName();
-                if (!fileName.endsWith(param.getValue())) {
+                if (!fileName.toString().endsWith(param.getValue())) {
                     return;
                 }
 
                 Path targetDir = switch (param) {
                     case PROCESSING_FILE_EXTENSION -> Path.of(serviceProperties.archiveKnowledgebaseDirectory());
-                    case FILE_EXTENSION_SEPARATOR -> Path.of(serviceProperties.pdfArchiveKnowledgebaseDirectory());
+                    case PDF_FILE_EXTENSION -> Path.of(serviceProperties.pdfArchiveKnowledgebaseDirectory());
                     default -> throw new IllegalArgumentException("Invalid FileProcessorConstant: " + param);
                 };
                 Path targetFile = targetDir.resolve(fileName);
@@ -89,8 +90,14 @@ public class FileMover {
                 if (!Files.isRegularFile(source)) {
                     return;
                 }
-                String uuid = idGenerator.generateId().toString();
-                Path target = Path.of(serviceProperties.targetKnowledgebaseDirectory()).resolve(uuid);
+
+                String extension = FilenameUtils.getExtension(source.getFileName().toString());
+                String filename = String.join(
+                        FileProcessorConstant.FILE_EXTENSION_SEPARATOR.getValue(),
+                        idGenerator.generateId().toString(),
+                        extension
+                );
+                Path target = Path.of(serviceProperties.targetKnowledgebaseDirectory()).resolve(filename);
 
                 try {
                     Files.copy(source, target, REPLACE_EXISTING);
@@ -129,14 +136,14 @@ public class FileMover {
     public static class KnowledgeClassifier {
 
         private static final String PROMPT = """
-                    Use the following context to answer the question.
-                    
-                    Context:
-                    {{context}}
-                    
-                    Question:
-                    {{question}}
-                    """;
+                Use the following context to answer the question.
+                
+                Context:
+                {{context}}
+                
+                Question:
+                {{question}}
+                """;
 
         private final ChatModel chatModel;
         private final AppConfig.ServiceProperties serviceProperties;

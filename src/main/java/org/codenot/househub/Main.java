@@ -78,6 +78,10 @@ public class Main implements CommandLineRunner {
 
         // Test complete process
         fileMover.importKnowledgeBase();
+        knowledgePersister.persistKnowledge();
+        fileMover.archiveProcessedFiles(FileProcessorConstant.PROCESSING_FILE_EXTENSION);
+        fileMover.archiveProcessedFiles(FileProcessorConstant.PDF_FILE_EXTENSION);
+
 
         System.out.println();
     }

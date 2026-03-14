@@ -35,18 +35,24 @@ public class FileParser {
         String baseName = fileName.contains(FileProcessorConstant.FILE_EXTENSION_SEPARATOR.getValue())
                 ? fileName.substring(0, fileName.lastIndexOf(FileProcessorConstant.FILE_EXTENSION_SEPARATOR.getValue()))
                 : fileName;
-        Path txtPath = path.resolveSibling(baseName + FileProcessorConstant.PROCESSING_FILE_EXTENSION.getValue());
+
+        String resolvedFilename = String.join(
+                FileProcessorConstant.FILE_EXTENSION_SEPARATOR.getValue(),
+                baseName,
+                FileProcessorConstant.PROCESSING_FILE_EXTENSION.getValue()
+        );
+        Path resolvedPath = path.resolveSibling(resolvedFilename);
 
         try (PDDocument pdDoc = Loader.loadPDF(path.toFile())) {
             PDFTextStripper stripper = new PDFTextStripper();
             String parsedText = stripper.getText(pdDoc);
-            Files.writeString(txtPath, parsedText);
-            log.info("TXT file created successfully: [{}]", txtPath);
+            Files.writeString(resolvedPath, parsedText);
+            log.info("TXT file created successfully: [{}]", resolvedPath);
         } catch (IOException e) {
             log.error("Failed to convert PDF to TXT: [{}]", path, e);
             throw new RuntimeException(e);
         }
 
-        return txtPath.toFile();
+        return resolvedPath.toFile();
     }
 }
