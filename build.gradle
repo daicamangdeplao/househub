@@ -52,6 +52,13 @@ dependencies {
     // pgvector is a custom PostgreSQL type, and JPA does not know how to map it automatically.
     implementation 'com.pgvector:pgvector:0.1.6'
 
+    // Source: https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox
+    implementation("org.apache.pdfbox:pdfbox:3.0.7")
+
+    // Source: https://mvnrepository.com/artifact/commons-io/commons-io
+    // For file handling
+    implementation("commons-io:commons-io:2.21.0")
+
     runtimeOnly 'org.postgresql:postgresql'
 
     compileOnly 'org.projectlombok:lombok'

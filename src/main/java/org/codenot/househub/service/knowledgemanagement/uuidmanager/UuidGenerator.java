@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement;
+package org.codenot.househub.service.knowledgemanagement.uuidmanager;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class UuidGeneratorService implements IdGeneratorService {
+public class UuidGenerator implements IdGenerator {
 
     @Override
     public UUID generateId() {

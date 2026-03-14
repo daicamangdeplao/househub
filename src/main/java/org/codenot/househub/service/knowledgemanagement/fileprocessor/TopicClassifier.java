@@ -1,10 +1,11 @@
-package org.codenot.househub.service.knowledgemanagement;
+package org.codenot.househub.service.knowledgemanagement.fileprocessor;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.config.AppConfig;
+import org.codenot.househub.service.knowledgemanagement.Topic;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class KnowledgeClassifier {
+public class TopicClassifier {
 
     private static final String PROMPT = """
                 Use the following context to answer the question.
@@ -28,7 +29,7 @@ public class KnowledgeClassifier {
     private final ChatModel chatModel;
     private final AppConfig.ServiceProperties serviceProperties;
 
-    public KnowledgeClassifier(ChatModel chatModel, AppConfig.ServiceProperties serviceProperties) {
+    public TopicClassifier(ChatModel chatModel, AppConfig.ServiceProperties serviceProperties) {
         this.chatModel = chatModel;
         this.serviceProperties = serviceProperties;
     }

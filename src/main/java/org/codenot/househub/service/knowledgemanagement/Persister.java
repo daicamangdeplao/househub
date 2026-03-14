@@ -2,34 +2,62 @@ package org.codenot.househub.service.knowledgemanagement;
 
 import com.pgvector.PGvector;
 import lombok.extern.slf4j.Slf4j;
+import org.codenot.househub.config.AppConfig;
 import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.repository.KnowledgeBaseRepository;
+import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileParser;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
-public class KnowledgePersister {
+public class Persister {
 
-    private final KnowledgeClassifier knowledgeClassifier;
-    private final IdGeneratorService idGeneratorService;
+    private final FileMover.KnowledgeClassifier knowledgeClassifier;
+    private final IdGenerator idGenerator;
     private final KnowledgeBaseRepository repository;
     private final EmbeddingModel embeddingModel;
+    private final AppConfig.ServiceProperties serviceProperties;
+    private final FileParser fileParser;
 
-    public KnowledgePersister(KnowledgeClassifier knowledgeClassifier, IdGeneratorService idGeneratorService, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel) {
+    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AppConfig.ServiceProperties serviceProperties, FileParser fileParser) {
         this.knowledgeClassifier = knowledgeClassifier;
-        this.idGeneratorService = idGeneratorService;
+        this.idGenerator = idGenerator;
         this.repository = repository;
         this.embeddingModel = embeddingModel;
+        this.serviceProperties = serviceProperties;
+        this.fileParser = fileParser;
+    }
+
+    public void persistKnowledge() {
+        try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
+            paths.filter(Files::isRegularFile)
+                    .forEach(path -> fileParser.parseFile(path).ifPresent(file -> {
+                        try {
+                            String content = Files.readString(file.toPath());
+                            persistKnowledge(content);
+                        } catch (IOException e) {
+                            log.error("Failed to read file: [{}]", file, e);
+                        }
+                    }));
+        } catch (Exception e) {
+            log.error("Failed to persist knowledge", e);
+        }
     }
 
     public void persistKnowledge(String knowledge) {
-        UUID uuid = idGeneratorService.generateId();
+        UUID uuid = idGenerator.generateId();
         log.info("Embedding text: [{}]", knowledge);
         KnowledgeBaseJpaEntity entity = new KnowledgeBaseJpaEntity();
         entity.setTopic(Topic.JAVA); // TODO Only for test
@@ -47,7 +75,7 @@ public class KnowledgePersister {
         return CompletableFuture.completedFuture(embedTextAsVector(text))
                 .thenApply((embedding) -> KnowledgeBaseJpaEntity.builder()
                         .topic(Topic.JAVA) // TODO Only for test
-                        .uuid(idGeneratorService.generateId())
+                        .uuid(idGenerator.generateId())
                         .publishedYear(LocalDateTime.now().getYear())
                         .embedding(embedding)
                         .build())
