@@ -2,7 +2,7 @@ package org.codenot.househub.service.knowledgemanagement.fileprocessor;
 
 public enum FileProcessorConstant {
 
-    PROCESSING_FILE_EXTENSION("txt"),
+    TXT_FILE_EXTENSION("txt"),
     PDF_FILE_EXTENSION("pdf"),
     FILE_EXTENSION_SEPARATOR(".");
 

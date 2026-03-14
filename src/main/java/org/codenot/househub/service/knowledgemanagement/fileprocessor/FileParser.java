@@ -39,7 +39,7 @@ public class FileParser {
         String resolvedFilename = String.join(
                 FileProcessorConstant.FILE_EXTENSION_SEPARATOR.getValue(),
                 baseName,
-                FileProcessorConstant.PROCESSING_FILE_EXTENSION.getValue()
+                FileProcessorConstant.TXT_FILE_EXTENSION.getValue()
         );
         Path resolvedPath = path.resolveSibling(resolvedFilename);
 

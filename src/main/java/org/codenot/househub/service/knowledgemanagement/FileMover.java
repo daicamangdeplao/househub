@@ -65,7 +65,7 @@ public class FileMover {
                 }
 
                 Path targetDir = switch (param) {
-                    case PROCESSING_FILE_EXTENSION -> Path.of(serviceProperties.archiveKnowledgebaseDirectory());
+                    case TXT_FILE_EXTENSION -> Path.of(serviceProperties.archiveKnowledgebaseDirectory());
                     case PDF_FILE_EXTENSION -> Path.of(serviceProperties.pdfArchiveKnowledgebaseDirectory());
                     default -> throw new IllegalArgumentException("Invalid FileProcessorConstant: " + param);
                 };
