@@ -5,12 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.config.AppConfig;
 import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.repository.KnowledgeBaseRepository;
+import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.TikaParser;
 import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileParser;
+import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,28 +30,26 @@ public class Persister {
     private final KnowledgeBaseRepository repository;
     private final EmbeddingModel embeddingModel;
     private final AppConfig.ServiceProperties serviceProperties;
-    private final FileParser fileParser;
+    private final DefaultParser defaultParser;
+    private final TikaParser tikaParser;
 
-    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AppConfig.ServiceProperties serviceProperties, FileParser fileParser) {
+    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AppConfig.ServiceProperties serviceProperties, DefaultParser defaultParser, TikaParser tikaParser) {
         this.knowledgeClassifier = knowledgeClassifier;
         this.idGenerator = idGenerator;
         this.repository = repository;
         this.embeddingModel = embeddingModel;
         this.serviceProperties = serviceProperties;
-        this.fileParser = fileParser;
+        this.defaultParser = defaultParser;
+        this.tikaParser = tikaParser;
     }
 
     public void persistKnowledge() {
         try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
             paths.filter(Files::isRegularFile)
-                    .forEach(path -> fileParser.parseFile(path).ifPresent(file -> {
-                        try {
-                            String content = Files.readString(file.toPath());
-                            persistKnowledge(content);
-                        } catch (IOException e) {
-                            log.error("Failed to read file: [{}]", file, e);
-                        }
-                    }));
+                    .forEach(path -> {
+                        String content = defaultParser.parse(path);
+                        persistKnowledge(content);
+                    });
         } catch (Exception e) {
             log.error("Failed to persist knowledge", e);
         }

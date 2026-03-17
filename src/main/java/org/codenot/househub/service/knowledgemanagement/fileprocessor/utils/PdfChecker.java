@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement.fileprocessor;
+package org.codenot.househub.service.knowledgemanagement.fileprocessor.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +13,7 @@ public class PdfChecker {
     // %PDF-1.4
     // %PDF-1.7
 
-    static boolean isPdf(Path path) {
+    public static boolean isPdf(Path path) {
 
         if (!Files.isRegularFile(path)) {
             return false;
