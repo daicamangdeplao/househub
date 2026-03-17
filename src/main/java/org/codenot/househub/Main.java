@@ -1,12 +1,7 @@
 package org.codenot.househub;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.service.knowledgemanagement.FileMover;
 import org.codenot.househub.service.knowledgemanagement.Importer;
-import org.codenot.househub.service.knowledgemanagement.Persister;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileParser;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
