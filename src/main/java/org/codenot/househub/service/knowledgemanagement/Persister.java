@@ -50,6 +50,7 @@ public class Persister {
         try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
             paths.filter(Files::isRegularFile)
                     .forEach(path -> {
+                        // TODO diese Methode lauft ganz langsam. Die Asynchronous Technique kann hier verwendet werden.
                         String content = tikaParser.parse(path);
                         List<TextSegment> textSegments = splitIntoChunks(content);
                         for (TextSegment segment : textSegments) {
