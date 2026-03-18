@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -43,11 +42,12 @@ public class Persister {
         this.tikaParser = tikaParser;
     }
 
-    public void persistKnowledge() {
+    public void process() {
         try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
             paths.filter(Files::isRegularFile)
                     .forEach(path -> {
-                        String content = defaultParser.parse(path);
+                        String content = tikaParser.parse(path);
+                        // TODO erstellen neue Chunks, for each Chunk -> persistKnowledge
                         persistKnowledge(content);
                     });
         } catch (Exception e) {

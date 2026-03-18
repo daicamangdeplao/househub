@@ -15,8 +15,8 @@ public class Importer {
     }
 
     public void run() {
-        fileMover.importKnowledgeBase();
-        persister.persistKnowledge();
+        fileMover.moveDocsToTarget();
+        persister.process();
         fileMover.archiveProcessedFiles(FileProcessorConstant.TXT_FILE_EXTENSION);
         fileMover.archiveProcessedFiles(FileProcessorConstant.PDF_FILE_EXTENSION);
     }

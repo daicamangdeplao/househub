@@ -42,7 +42,7 @@ public class FileMover {
      * @throws IOException      if an I/O error occurs while walking the source directory
      * @throws RuntimeException if copying an individual file fails
      */
-    public void importKnowledgeBase() {
+    public void moveDocsToTarget() {
         log.info("Importing knowledge base from [{}] to [{}]", serviceProperties.sourceKnowledgebaseDirectory(), serviceProperties.targetKnowledgebaseDirectory());
 
         copyKnowledgeBase();
