@@ -1,21 +1,25 @@
 package org.codenot.househub.service.knowledgemanagement;
 
 import com.pgvector.PGvector;
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.DocumentSplitter;
+import dev.langchain4j.data.document.splitter.DocumentSplitters;
+import dev.langchain4j.data.segment.TextSegment;
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.househub.config.AppConfig;
 import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.repository.KnowledgeBaseRepository;
+import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
 import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.TikaParser;
 import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -47,8 +51,10 @@ public class Persister {
             paths.filter(Files::isRegularFile)
                     .forEach(path -> {
                         String content = tikaParser.parse(path);
-                        // TODO erstellen neue Chunks, for each Chunk -> persistKnowledge
-                        persistKnowledge(content);
+                        List<TextSegment> textSegments = splitIntoChunks(content);
+                        for (TextSegment segment : textSegments) {
+                            persistKnowledge(segment.toString());
+                        }
                     });
         } catch (Exception e) {
             log.error("Failed to persist knowledge", e);
@@ -87,5 +93,15 @@ public class Persister {
     private PGvector embedTextAsVector(String text) {
         log.info("Embedding text: [{}]", text);
         return new PGvector(embeddingModel.embed(text));
+    }
+
+    private List<TextSegment> splitIntoChunks(String content) {
+        Document document = Document.from(content);
+        DocumentSplitter splitter = DocumentSplitters.recursive(
+                // TODO dies muss im Config Klassen geholt werden, nicht hier
+                600,   // chunk size
+                120     // overlap
+        );
+        return splitter.split(document);
     }
 }

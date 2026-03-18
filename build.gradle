@@ -54,7 +54,8 @@ dependencies {
     implementation("org.apache.pdfbox:pdfbox:3.0.7") // Apache Tika is going to replace this.
     implementation("org.apache.tika:tika-core:3.2.3")
     implementation("org.apache.tika:tika-parsers-standard-package:3.2.3")
-
+    // Text chunking
+    implementation("dev.langchain4j:langchain4j:1.12.2")
     // File handling
     implementation("commons-io:commons-io:2.21.0")
 
