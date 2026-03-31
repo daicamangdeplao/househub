@@ -1,4 +1,4 @@
-package org.codenot.househub.entity;
+package org.codenot.househub.advisor.entity;
 
 import com.pgvector.PGvector;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;

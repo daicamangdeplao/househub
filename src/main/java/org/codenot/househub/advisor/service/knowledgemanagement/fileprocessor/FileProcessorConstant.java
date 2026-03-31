@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement.fileprocessor;
+package org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor;
 
 public enum FileProcessorConstant {
 

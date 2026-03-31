@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement;
+package org.codenot.househub.advisor.service.knowledgemanagement;
 
 import com.pgvector.PGvector;
 import dev.langchain4j.data.document.Document;
@@ -6,12 +6,12 @@ import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.config.AppConfig;
-import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
-import org.codenot.househub.repository.KnowledgeBaseRepository;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.parser.TikaParser;
-import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
+import org.codenot.househub.advisor.config.AppConfig;
+import org.codenot.househub.advisor.entity.KnowledgeBaseJpaEntity;
+import org.codenot.househub.advisor.repository.KnowledgeBaseRepository;
+import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
+import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.parser.TikaParser;
+import org.codenot.househub.advisor.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

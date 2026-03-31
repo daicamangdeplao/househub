@@ -1,9 +1,9 @@
-package org.codenot.househub.entity;
+package org.codenot.househub.advisor.entity;
 
 import com.pgvector.PGvector;
 import jakarta.persistence.*;
 import lombok.*;
-import org.codenot.househub.service.knowledgemanagement.Topic;
+import org.codenot.househub.advisor.service.knowledgemanagement.Topic;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 

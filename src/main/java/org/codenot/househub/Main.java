@@ -1,7 +1,7 @@
 package org.codenot.househub;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.service.knowledgemanagement.Importer;
+import org.codenot.househub.advisor.service.knowledgemanagement.Importer;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

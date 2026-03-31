@@ -1,4 +1,4 @@
-package org.codenot.househub.config;
+package org.codenot.househub.advisor.config;
 
 
 import org.springframework.beans.factory.annotation.Value;

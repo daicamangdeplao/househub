@@ -1,13 +1,13 @@
-package org.codenot.househub.service.knowledgemanagement;
+package org.codenot.househub.advisor.service.knowledgemanagement;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.codenot.househub.config.AppConfig;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
-import org.codenot.househub.service.knowledgemanagement.uuidmanager.IdGenerator;
+import org.codenot.househub.advisor.config.AppConfig;
+import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
+import org.codenot.househub.advisor.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

@@ -1,11 +1,11 @@
-package org.codenot.househub.service.knowledgemanagement.fileprocessor.parser;
+package org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.parser;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.utils.PdfChecker;
+import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
+import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.utils.PdfChecker;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

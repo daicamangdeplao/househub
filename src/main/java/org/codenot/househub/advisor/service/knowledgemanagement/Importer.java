@@ -1,6 +1,6 @@
-package org.codenot.househub.service.knowledgemanagement;
+package org.codenot.househub.advisor.service.knowledgemanagement;
 
-import org.codenot.househub.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
+import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 import org.springframework.stereotype.Service;
 
 @Service

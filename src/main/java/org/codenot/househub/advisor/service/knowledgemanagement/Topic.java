@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement;
+package org.codenot.househub.advisor.service.knowledgemanagement;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement.fileprocessor.utils;
+package org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

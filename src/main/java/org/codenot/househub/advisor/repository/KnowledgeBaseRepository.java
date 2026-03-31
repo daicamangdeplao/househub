@@ -1,6 +1,6 @@
-package org.codenot.househub.repository;
+package org.codenot.househub.advisor.repository;
 
-import org.codenot.househub.entity.KnowledgeBaseJpaEntity;
+import org.codenot.househub.advisor.entity.KnowledgeBaseJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

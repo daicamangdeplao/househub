@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement.uuidmanager;
+package org.codenot.househub.advisor.service.knowledgemanagement.uuidmanager;
 
 import java.util.UUID;
 

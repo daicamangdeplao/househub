@@ -1,11 +1,11 @@
-package org.codenot.househub.service.knowledgemanagement.fileprocessor;
+package org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.config.AppConfig;
-import org.codenot.househub.service.knowledgemanagement.Topic;
+import org.codenot.househub.advisor.config.AppConfig;
+import org.codenot.househub.advisor.service.knowledgemanagement.Topic;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;

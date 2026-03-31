@@ -1,4 +1,4 @@
-package org.codenot.househub.service.taskmanagement;
+package org.codenot.househub.advisor.service.taskmanagement;
 
 import org.springframework.stereotype.Service;
 

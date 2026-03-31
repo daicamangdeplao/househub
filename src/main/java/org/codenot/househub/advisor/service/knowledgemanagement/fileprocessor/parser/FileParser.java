@@ -1,4 +1,4 @@
-package org.codenot.househub.service.knowledgemanagement.fileprocessor.parser;
+package org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.parser;
 
 import java.nio.file.Path;
 
