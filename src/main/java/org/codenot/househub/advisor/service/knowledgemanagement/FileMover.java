@@ -39,7 +39,6 @@ public class FileMover {
      * map UUIDs to file names
      * write files to target directory
      *
-     * @throws IOException      if an I/O error occurs while walking the source directory
      * @throws RuntimeException if copying an individual file fails
      */
     public void moveDocsToTarget() {
