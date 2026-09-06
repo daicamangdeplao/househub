@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AppConfig {
+public class AdvisorConfig {
 
     @Value("${service.importer.knowledgeBase.source.directory}")
     private String sourceKnowledgebaseDirectory;
@@ -30,10 +30,10 @@ public class AppConfig {
     }
 
     public record ServiceProperties(
-            String sourceKnowledgebaseDirectory,
-            String targetKnowledgebaseDirectory,
-            String archiveKnowledgebaseDirectory,
-            String pdfArchiveKnowledgebaseDirectory
+            String sourceKnowledgeBaseDirectory,
+            String targetKnowledgeBaseDirectory,
+            String archiveKnowledgeBaseDirectory,
+            String pdfArchiveKnowledgeBaseDirectory
     ) {
     }
 }

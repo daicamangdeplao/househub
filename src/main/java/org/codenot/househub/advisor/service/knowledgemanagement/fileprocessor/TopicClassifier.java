@@ -4,7 +4,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.advisor.config.AppConfig;
+import org.codenot.househub.advisor.config.AdvisorConfig;
 import org.codenot.househub.advisor.service.knowledgemanagement.Topic;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +27,9 @@ public class TopicClassifier {
                 """;
 
     private final ChatModel chatModel;
-    private final AppConfig.ServiceProperties serviceProperties;
+    private final AdvisorConfig.ServiceProperties serviceProperties;
 
-    public TopicClassifier(ChatModel chatModel, AppConfig.ServiceProperties serviceProperties) {
+    public TopicClassifier(ChatModel chatModel, AdvisorConfig.ServiceProperties serviceProperties) {
         this.chatModel = chatModel;
         this.serviceProperties = serviceProperties;
     }
@@ -37,7 +37,7 @@ public class TopicClassifier {
     public Topic classifyTopic() {
         log.info("Classifying topic...");
         // 1) Retrieve context, the context should be collected from raw TXT file
-        String context = extractIntroductionFromTxtFile(Path.of(serviceProperties.targetKnowledgebaseDirectory()));
+        String context = extractIntroductionFromTxtFile(Path.of(serviceProperties.targetKnowledgeBaseDirectory()));
 
         // 2) Build a prompt
         PromptTemplate template = PromptTemplate.from(PROMPT);

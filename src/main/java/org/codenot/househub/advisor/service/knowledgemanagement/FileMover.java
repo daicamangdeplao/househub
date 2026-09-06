@@ -5,7 +5,7 @@ import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.codenot.househub.advisor.config.AppConfig;
+import org.codenot.househub.advisor.config.AdvisorConfig;
 import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.FileProcessorConstant;
 import org.codenot.househub.advisor.service.knowledgemanagement.uuidmanager.IdGenerator;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Slf4j
 public class FileMover {
 
-    private final AppConfig.ServiceProperties serviceProperties;
+    private final AdvisorConfig.ServiceProperties serviceProperties;
     private final IdGenerator idGenerator;
 
-    public FileMover(AppConfig.ServiceProperties serviceProperties, IdGenerator idGenerator) {
+    public FileMover(AdvisorConfig.ServiceProperties serviceProperties, IdGenerator idGenerator) {
         this.serviceProperties = serviceProperties;
         this.idGenerator = idGenerator;
     }
@@ -42,7 +42,7 @@ public class FileMover {
      * @throws RuntimeException if copying an individual file fails
      */
     public void moveDocsToTarget() {
-        log.info("Importing knowledge base from [{}] to [{}]", serviceProperties.sourceKnowledgebaseDirectory(), serviceProperties.targetKnowledgebaseDirectory());
+        log.info("Importing knowledge base from [{}] to [{}]", serviceProperties.sourceKnowledgeBaseDirectory(), serviceProperties.targetKnowledgeBaseDirectory());
 
         copyKnowledgeBase();
         cleanUpSourceDir();
@@ -51,7 +51,7 @@ public class FileMover {
     }
 
     public void archiveProcessedFiles(FileProcessorConstant param) {
-        try (var paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
+        try (var paths = Files.walk(Path.of(serviceProperties.targetKnowledgeBaseDirectory()))) {
             paths.forEach(source -> {
                 // skip directories and symbolic links, only process regular files
                 if (!Files.isRegularFile(source)) {
@@ -64,8 +64,8 @@ public class FileMover {
                 }
 
                 Path targetDir = switch (param) {
-                    case TXT_FILE_EXTENSION -> Path.of(serviceProperties.archiveKnowledgebaseDirectory());
-                    case PDF_FILE_EXTENSION -> Path.of(serviceProperties.pdfArchiveKnowledgebaseDirectory());
+                    case TXT_FILE_EXTENSION -> Path.of(serviceProperties.archiveKnowledgeBaseDirectory());
+                    case PDF_FILE_EXTENSION -> Path.of(serviceProperties.pdfArchiveKnowledgeBaseDirectory());
                     default -> throw new IllegalArgumentException("Invalid FileProcessorConstant: " + param);
                 };
                 Path targetFile = targetDir.resolve(fileName);
@@ -83,7 +83,7 @@ public class FileMover {
     }
 
     private void copyKnowledgeBase() {
-        try (var paths = Files.walk(Path.of(serviceProperties.sourceKnowledgebaseDirectory()))) {
+        try (var paths = Files.walk(Path.of(serviceProperties.sourceKnowledgeBaseDirectory()))) {
             paths.forEach(source -> {
                 // skip directories and symbolic links, only process regular files
                 if (!Files.isRegularFile(source)) {
@@ -96,7 +96,7 @@ public class FileMover {
                         idGenerator.generateId().toString(),
                         extension
                 );
-                Path target = Path.of(serviceProperties.targetKnowledgebaseDirectory()).resolve(filename);
+                Path target = Path.of(serviceProperties.targetKnowledgeBaseDirectory()).resolve(filename);
 
                 try {
                     Files.copy(source, target, REPLACE_EXISTING);
@@ -107,12 +107,12 @@ public class FileMover {
                 }
             });
         } catch (IOException e) {
-            log.error("Failed to move files to target directory [{}]", serviceProperties.targetKnowledgebaseDirectory(), e);
+            log.error("Failed to move files to target directory [{}]", serviceProperties.targetKnowledgeBaseDirectory(), e);
         }
     }
 
     private void cleanUpSourceDir() {
-        try (var paths = Files.walk(Path.of(serviceProperties.sourceKnowledgebaseDirectory()))) {
+        try (var paths = Files.walk(Path.of(serviceProperties.sourceKnowledgeBaseDirectory()))) {
             paths.forEach(source -> {
                 if (!Files.isRegularFile(source)) {
                     return;
@@ -126,7 +126,7 @@ public class FileMover {
                 }
             });
         } catch (IOException e) {
-            log.error("Failed to delete files from source directory [{}]", serviceProperties.sourceKnowledgebaseDirectory(), e);
+            log.error("Failed to delete files from source directory [{}]", serviceProperties.sourceKnowledgeBaseDirectory(), e);
         }
     }
 
@@ -145,9 +145,9 @@ public class FileMover {
                 """;
 
         private final ChatModel chatModel;
-        private final AppConfig.ServiceProperties serviceProperties;
+        private final AdvisorConfig.ServiceProperties serviceProperties;
 
-        public KnowledgeClassifier(ChatModel chatModel, AppConfig.ServiceProperties serviceProperties) {
+        public KnowledgeClassifier(ChatModel chatModel, AdvisorConfig.ServiceProperties serviceProperties) {
             this.chatModel = chatModel;
             this.serviceProperties = serviceProperties;
         }
@@ -155,7 +155,7 @@ public class FileMover {
         public Topic classifyTopic() {
             log.info("Classifying topic...");
             // 1) Retrieve context, the context should be collected from raw TXT file
-            String context = extractIntroductionFromTxtFile(Path.of(serviceProperties.targetKnowledgebaseDirectory()));
+            String context = extractIntroductionFromTxtFile(Path.of(serviceProperties.targetKnowledgeBaseDirectory()));
 
             // 2) Build a prompt
             PromptTemplate template = PromptTemplate.from(PROMPT);
