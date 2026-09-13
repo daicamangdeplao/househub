@@ -6,7 +6,7 @@ import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import lombok.extern.slf4j.Slf4j;
-import org.codenot.househub.advisor.config.AppConfig;
+import org.codenot.househub.advisor.config.AdvisorConfig;
 import org.codenot.househub.advisor.entity.KnowledgeBaseJpaEntity;
 import org.codenot.househub.advisor.repository.KnowledgeBaseRepository;
 import org.codenot.househub.advisor.service.knowledgemanagement.fileprocessor.parser.DefaultParser;
@@ -32,11 +32,11 @@ public class Persister {
     private final IdGenerator idGenerator;
     private final KnowledgeBaseRepository repository;
     private final EmbeddingModel embeddingModel;
-    private final AppConfig.ServiceProperties serviceProperties;
+    private final AdvisorConfig.ServiceProperties serviceProperties;
     private final DefaultParser defaultParser;
     private final TikaParser tikaParser;
 
-    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AppConfig.ServiceProperties serviceProperties, DefaultParser defaultParser, TikaParser tikaParser) {
+    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AdvisorConfig.ServiceProperties serviceProperties, DefaultParser defaultParser, TikaParser tikaParser) {
         this.knowledgeClassifier = knowledgeClassifier;
         this.idGenerator = idGenerator;
         this.repository = repository;
@@ -47,7 +47,7 @@ public class Persister {
     }
 
     public void process() {
-        try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgebaseDirectory()))) {
+        try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgeBaseDirectory()))) {
             paths.filter(Files::isRegularFile)
                     .forEach(path -> {
                         // TODO diese Methode lauft ganz langsam. Die Asynchronous Technique kann hier verwendet werden.
