@@ -31,23 +31,30 @@ public class Persister {
     private final FileMover.KnowledgeClassifier knowledgeClassifier;
     private final IdGenerator idGenerator;
     private final KnowledgeBaseRepository repository;
-    private final EmbeddingModel embeddingModel;
-    private final AdvisorConfig.ServiceProperties serviceProperties;
+    private final EmbeddingModel embeddingService;
+    private final AdvisorConfig.ServiceProperties configs;
     private final DefaultParser defaultParser;
     private final TikaParser tikaParser;
 
-    public Persister(FileMover.KnowledgeClassifier knowledgeClassifier, IdGenerator idGenerator, KnowledgeBaseRepository repository, EmbeddingModel embeddingModel, AdvisorConfig.ServiceProperties serviceProperties, DefaultParser defaultParser, TikaParser tikaParser) {
+    public Persister(
+            FileMover.KnowledgeClassifier knowledgeClassifier,
+            IdGenerator idGenerator, KnowledgeBaseRepository repository,
+            EmbeddingModel embeddingService,
+            AdvisorConfig.ServiceProperties configs,
+            DefaultParser defaultParser,
+            TikaParser tikaParser
+    ) {
         this.knowledgeClassifier = knowledgeClassifier;
         this.idGenerator = idGenerator;
         this.repository = repository;
-        this.embeddingModel = embeddingModel;
-        this.serviceProperties = serviceProperties;
+        this.embeddingService = embeddingService;
+        this.configs = configs;
         this.defaultParser = defaultParser;
         this.tikaParser = tikaParser;
     }
 
     public void process() {
-        try (Stream<Path> paths = Files.walk(Path.of(serviceProperties.targetKnowledgeBaseDirectory()))) {
+        try (Stream<Path> paths = Files.walk(Path.of(configs.targetKnowledgeBaseDirectory()))) {
             paths.filter(Files::isRegularFile)
                     .forEach(path -> {
                         // TODO diese Methode lauft ganz langsam. Die Asynchronous Technique kann hier verwendet werden.
@@ -70,7 +77,7 @@ public class Persister {
         entity.setUuid(uuid);
         entity.setPublishedYear(LocalDateTime.now().getYear());
         // The embedding model is CPU-bound
-        float[] embed = embeddingModel.embed(knowledge);
+        float[] embed = embeddingService.embed(knowledge);
         entity.setEmbedding(new PGvector(embed));
         repository.save(entity);
         log.info("Persist knowledge with uuid [{}] successfully", uuid);
@@ -93,7 +100,7 @@ public class Persister {
 
     private PGvector embedTextAsVector(String text) {
         log.info("Embedding text: [{}]", text);
-        return new PGvector(embeddingModel.embed(text));
+        return new PGvector(embeddingService.embed(text));
     }
 
     private List<TextSegment> splitIntoChunks(String content) {
