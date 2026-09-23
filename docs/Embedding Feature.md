@@ -1,5 +1,24 @@
 # Plan: PostgresML als Embedding-Service & PostgreSQL als Vektor-DB
 
+## Zielarchitektur (bewusste Trennung)
+
+Gewünscht ist eine klare Trennung der Zuständigkeiten:
+
+- **PostgresML (`postgresml210`, Port 5434)** → **ausschließlich** Embedding-Berechnung (`pgml`-Extension, Modell `distilbert-base-uncased`).
+- **PostgreSQL (`postgresql161`, Port 5432)** → **ausschließlich** Vektor-Speicher (`vector`/pgvector-Extension, Tabelle `knowledge_base`, Ähnlichkeitssuche).
+
+````mermaid
+flowchart LR
+    App[[HouseHub App]] -->|1. embed text| PGML[(PostgresML 5434\npgml)]
+    PGML -->|Vektor 768| App
+    App -->|2. INSERT / kNN-Suche| PG[(PostgreSQL 161 : 5432\nvector / pgvector)]
+````
+
+> **Wichtiger technischer Hinweis:** Die Spring-AI-Integration `spring-ai-starter-model-postgresml-embedding` ruft `pgml.embed(...)` über **die konfigurierte JDBC-Datasource** auf. Aktuell zeigt genau diese Datasource auf 5434. Für die Trennung müssen daher **zwei getrennte Datenbank-Verbindungen** existieren:
+>
+> - eine Datasource für die **Embedding-Berechnung** → PostgresML (5434),
+> - eine (primäre) Datasource für **JPA/pgvector-Speicherung** → PostgreSQL 161 (5432).
+
 ## Overview
 
 ````mermaid
@@ -49,11 +68,34 @@ Port `5434:5432` passt exakt zu `spring.datasource.url=jdbc:postgresql://localho
 
 **1b. Environment / `.env` bereitstellen.** Der Service setzt keine `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB`; `${POSTGRESML_USER}` wird aus einer `.env`-Datei im Compose-Verzeichnis erwartet. Sicherstellen, dass `.env` existiert und die Werte zu den App-Defaults (`postgresml`/`postgresml`/`postgresml`) passen – sonst schlägt der Login fehl.
 
-**1c. Verhältnis zu `postgresql161`.** Die Compose-Datei enthält zusätzlich einen reinen `postgresql161`-Service (Port 5432, eigener Dockerfile-Build). Da die App auf 5434 (PostgresML) zeigt, laufen Embedding-Erzeugung (`pgml`) und Vektor-Speicherung (`vector`) aktuell in derselben PostgresML-Instanz. Das ist konsistent mit dem Ziel und in Ordnung; `postgresql161` wird für dieses Feature nicht benötigt.
+**1c. Rolle von `postgresql161` (jetzt zentral).** Die Compose-Datei enthält bereits den Service `postgresql161` (Port 5432, eigener Dockerfile-Build). Gemäß der Zielarchitektur wird **dieser** Service zum **Vektor-Speicher**. Dazu ist erforderlich:
+
+- Die `vector`-Extension (pgvector) muss in `postgresql161` verfügbar sein. Ein reines `postgres:16.1` bringt sie nicht mit → im `./postgres-16.1/Dockerfile` `pgvector` installieren (z. B. Basis `pgvector/pgvector:pg16` oder Extension nachinstallieren) und in der DB `CREATE EXTENSION vector;` ausführen.
+- Die Tabelle `knowledge_base` (inkl. `embedding vector(768)` + Index) wird in **dieser** 5432-Instanz angelegt (nicht mehr in PostgresML).
+- `pgml` wird in `postgresql161` **nicht** benötigt (Embeddings kommen von PostgresML 5434).
+
+**1d. Zwei Datasources konfigurieren (Kernpunkt der Trennung).** In `application.properties` muss die **primäre** Datasource auf `postgresql161` (5432) zeigen (JPA/Speicherung), und für die PostgresML-Embedding-Berechnung ist eine **zweite** Datasource auf 5434 nötig. Skizze:
+
+```properties
+# Primär: Vektor-Speicher (PostgreSQL 16.1 + pgvector)
+spring.datasource.url=jdbc:postgresql://localhost:5432/househub
+spring.datasource.username=${POSTGRES_USER}
+spring.datasource.password=${POSTGRES_PASSWORD}
+
+# Sekundär: PostgresML nur für Embeddings
+app.embedding.datasource.url=jdbc:postgresql://localhost:5434/postgresml
+app.embedding.datasource.username=${POSTGRESML_USER}
+app.embedding.datasource.password=${POSTGRESML_PASSWORD}
+```
+
+Da Spring AI standardmäßig die *primäre* Datasource für `postgresml.embed` verwendet, muss der `PostgresMlEmbeddingModel` explizit mit einem eigenen `JdbcTemplate` (auf Basis der 5434-Datasource) als Bean gebaut werden, damit Embedding-Berechnung (5434) und JPA-Speicherung (5432) sauber getrennt sind.
 
 Hinweis: PostgresML-Image ist groß (GPU/CPU-lastig); Tag-Version `2.10.0` ist gesetzt.
 
-### 2. Embedding-Dimension verifizieren (häufige Fehlerquelle)
+### 2. `schema.sql` auf die 5432-Instanz ausrichten
+Da der Speicher nun in `postgresql161` liegt, gehört `schema.sql` (Tabelle `knowledge_base`, `embedding vector(768)`, Index) gegen die **primäre** Datasource (5432) ausgeführt. Wichtig: **`create extension if not exists pgml;` aus `schema.sql` entfernen** – `pgml` gehört nur in die PostgresML-Instanz, nicht in den reinen Speicher. Es bleibt lediglich `create extension if not exists vector;`.
+
+### 2b. Embedding-Dimension verifizieren (häufige Fehlerquelle)
 Die Tabelle ist auf `vector(768)` festgelegt. Sicherstellen, dass `distilbert-base-uncased` tatsächlich 768 Dimensionen liefert. Bei Modellwechsel (z. B. `intfloat/e5-small` = 384) müssen sowohl `schema.sql` als auch `columnDefinition = "vector(768)"` in der Entity angepasst werden. Am besten in eine zentrale Konstante/Property auslagern.
 
 ### 3. `TRUNCATE` aus schema.sql entfernen
@@ -79,8 +121,10 @@ Empfehlung: Cosinus-Operator `<=>` in `findMostSimilar` verwenden, passend zum I
 Für die Suche die Anfrage mit demselben PostgresML-Modell einbetten wie die gespeicherten Dokumente (`embeddingService.embed(query)` → `findMostSimilar`). Sonst sind die Vektorräume inkompatibel.
 
 ## Prioritäten-Reihenfolge
-1. `command:`-Override in `postgresml210` entfernen + `.env` bereitstellen (Umgebung tatsächlich startfähig machen).
-2. `truncate` entfernen + `spring.sql.init.mode` überdenken.
-3. Dimension (768) gegen das reale Modell verifizieren.
-4. Distanz-Metrik zwischen Index und Query angleichen.
-5. Code-Cleanup (Old-Type, sync/async, Properties).
+1. `command:`-Override in `postgresml210` entfernen + `.env` bereitstellen (PostgresML als reinen Embedding-Dienst startfähig machen).
+2. `postgresql161` als Vektor-Speicher vorbereiten: `pgvector` im Dockerfile installieren + `CREATE EXTENSION vector;`.
+3. Zwei Datasources einführen: primär 5432 (JPA/pgvector), sekundär 5434 (PostgresML-Embedding), `PostgresMlEmbeddingModel` an die 5434-Datasource binden.
+4. `schema.sql` auf 5432 ausrichten und `create extension pgml` daraus entfernen; `truncate` entfernen + `spring.sql.init.mode` überdenken.
+5. Dimension (768) gegen das reale Modell verifizieren.
+6. Distanz-Metrik zwischen Index und Query angleichen.
+7. Code-Cleanup (Old-Type, sync/async, Properties).
